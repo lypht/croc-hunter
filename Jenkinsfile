@@ -89,6 +89,7 @@ volumes:[
         pipeline.helmDeploy(
           dry_run       : true,
           name          : config.app.name,
+          namespace     : config.app.name,
           version_tag   : image_tags_list.get(0),
           chart_dir     : chart_dir,
           replicas      : config.app.replicas,
