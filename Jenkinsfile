@@ -127,7 +127,7 @@ volumes:[
 
     // }
 
-    if (env.BRANCH_NAME ==~ 'PR' ) {
+    if (env.BRANCH_NAME =~ 'PR' ) {
       stage ('deploy to k8s') {
         container('helm') {
           // Deploy using Helm chart
