@@ -94,7 +94,8 @@ volumes:[
           chart_dir     : chart_dir,
           replicas      : config.app.replicas,
           cpu           : config.app.cpu,
-          memory        : config.app.memory
+          memory        : config.app.memory,
+          hostname      : config.app.hostname
         )
 
       }
@@ -139,7 +140,8 @@ volumes:[
             chart_dir     : chart_dir,
             replicas      : config.app.replicas,
             cpu           : config.app.cpu,
-            memory        : config.app.memory
+            memory        : config.app.memory,
+            hostname      : config.app.hostname
           )
 
           //  Run helm tests
@@ -170,7 +172,8 @@ volumes:[
             chart_dir     : chart_dir,
             replicas      : config.app.replicas,
             cpu           : config.app.cpu,
-            memory        : config.app.memory
+            memory        : config.app.memory,
+            hostname      : config.app.hostname
           )
 
           //  Run helm tests
