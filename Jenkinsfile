@@ -6,8 +6,8 @@
 def pipeline = new io.estrado.Pipeline()
 
 podTemplate(label: 'jenkins-pipeline', containers: [
-    containerTemplate(name: 'jnlp', image: 'jenkinsci/jnlp-slave:2.62', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '200m', resourceLimitCpu: '200m', resourceRequestMemory: '256Mi', resourceLimitMemory: '256Mi'),
-    containerTemplate(name: 'docker', image: 'docker:1.12.6',       command: 'cat', ttyEnabled: true),
+    containerTemplate(name: 'jnlp', image: 'jenkinsci/jnlp-slave', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '200m', resourceLimitCpu: '200m', resourceRequestMemory: '256Mi', resourceLimitMemory: '256Mi'),
+    containerTemplate(name: 'docker', image: 'google/cloud-sdk',       command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'golang', image: 'golang:1.7.5', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.4.1', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.4.8', command: 'cat', ttyEnabled: true)
@@ -23,10 +23,24 @@ volumes:[
 
     checkout scm
 
+
+    def project = 'farmotive-com'
+    def appName = 'croc-hunter'
+    def imageTag = "gcr.io/${project}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
+
+    stage 'Build image'
+    sh("docker build -t ${imageTag} .")
+
+    stage 'Run Go tests'
+    sh("docker run ${imageTag} go test")
+
+    stage 'Push image to registry'
+    sh("gcloud docker -- push ${imageTag}")
+
     // read in required jenkins workflow config values
-    def inputFile = readFile('Jenkinsfile.json')
-    def config = new groovy.json.JsonSlurperClassic().parseText(inputFile)
-    println "pipeline config ==> ${config}"
+    // def inputFile = readFile('Jenkinsfile.json')
+    // def config = new groovy.json.JsonSlurperClassic().parseText(inputFile)
+    // println "pipeline config ==> ${config}"
 
     // continue only if pipeline enabled
     if (!config.pipeline.enabled) {
@@ -90,13 +104,13 @@ volumes:[
 
     stage ('publish container') {
 
-      container('docker') {
+      // container('docker') {
 
         // perform docker login to quay as the docker-pipeline-plugin doesn't work with the next auth json format
-        withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: config.container_repo.jenkins_creds_id,
-                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-          sh "docker login -u ${env.USERNAME} -p ${env.PASSWORD} quay.io"
-        }
+        // withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: config.container_repo.jenkins_creds_id,
+        //                usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+        //  sh "docker login -u ${env.USERNAME} -p ${env.PASSWORD} quay.io"
+        // }
 
         // build and publish container
         pipeline.containerBuildPub(
@@ -105,7 +119,7 @@ volumes:[
             acct      : acct,
             repo      : config.container_repo.repo,
             tags      : image_tags_list,
-            auth_id   : config.container_repo.jenkins_creds_id
+          //  auth_id   : config.container_repo.jenkins_creds_id
         )
       }
 
