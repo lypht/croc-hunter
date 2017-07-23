@@ -7,7 +7,7 @@ def pipeline = new io.estrado.Pipeline()
 
 podTemplate(label: 'jenkins-pipeline', containers: [
     containerTemplate(name: 'jnlp', image: 'jenkinsci/jnlp-slave', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '200m', resourceLimitCpu: '200m', resourceRequestMemory: '256Mi', resourceLimitMemory: '256Mi'),
-    containerTemplate(name: 'docker', image: 'google/cloud-sdk',       command: 'cat', ttyEnabled: true),
+    containerTemplate(name: 'google', image: 'google/cloud-sdk',       command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'golang', image: 'golang:1.7.5', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.4.1', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.4.8', command: 'cat', ttyEnabled: true)
@@ -28,14 +28,11 @@ volumes:[
     def appName = 'croc-hunter'
     def imageTag = "gcr.io/${project}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
 
-    stage 'Build image'
-    sh("docker build -t ${imageTag} .")
-
-    stage 'Run Go tests'
-    sh("docker run ${imageTag} go test")
-
-    stage 'Push image to registry'
-    sh("gcloud docker -- push ${imageTag}")
+    stage ('Build image') {
+      container('google') {
+        sh("docker build -t ${imageTag} .")
+      }
+    }
 
     // read in required jenkins workflow config values
     // def inputFile = readFile('Jenkinsfile.json')
@@ -103,6 +100,10 @@ volumes:[
     }
 
     stage ('publish container') {
+      container ('gcloud')
+        sh("gcloud docker -- push ${imageTag}")
+      }
+    }
 
       // container('docker') {
 
@@ -113,17 +114,17 @@ volumes:[
         // }
 
         // build and publish container
-        pipeline.containerBuildPub(
-            dockerfile: config.container_repo.dockerfile,
-            host      : config.container_repo.host,
-            acct      : acct,
-            repo      : config.container_repo.repo,
-            tags      : image_tags_list,
+        //pipeline.containerBuildPub(
+          //  dockerfile: config.container_repo.dockerfile,
+          //  host      : config.container_repo.host,
+          //  acct      : acct,
+          //  repo      : config.container_repo.repo,
+          //  tags      : image_tags_list,
           //  auth_id   : config.container_repo.jenkins_creds_id
-        )
-      }
+      //  )
+      // }
 
-    }
+    // }
 
     // deploy only the master branch
     if (env.BRANCH_NAME == 'master') {
