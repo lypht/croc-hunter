@@ -116,6 +116,7 @@ volumes:[
         // }
 
         // build and publish container
+<<<<<<< HEAD
         //pipeline.containerBuildPub(
           //  dockerfile: config.container_repo.dockerfile,
           //  host      : config.container_repo.host,
@@ -127,6 +128,19 @@ volumes:[
       // }
 
     // }
+=======
+        pipeline.containerBuildPub(
+            dockerfile: config.container_repo.dockerfile,
+            host      : config.container_repo.host,
+            acct      : acct,
+            repo      : config.container_repo.repo,
+            tags      : image_tags_list,
+          //  auth_id   : config.container_repo.jenkins_creds_id
+        )
+      }
+
+    }
+>>>>>>> saving the file might help
 
     if (env.BRANCH_NAME =~ "PR-*" ) {
       stage ('deploy to k8s') {
