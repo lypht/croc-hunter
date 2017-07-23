@@ -7,12 +7,10 @@
     "test": true
   },
   "container_repo": {
-    "host": "quay.io",
-    "master_acct": "lachie83",
-    "alt_acct": "lachie83",
-    "jenkins_creds_id": "quay_creds",
+    "host": "gcr.io",
+    "master_acct": "farmotive-com",
+    "alt_acct": "farmotive-com",
     "repo": "croc-hunter",
-    "dockeremail": ".",
     "dockerfile": "./"
   },
   "pipeline": {
