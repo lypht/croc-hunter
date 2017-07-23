@@ -116,41 +116,16 @@ volumes:[
         // }
 
         // build and publish container
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> use a container!
-        //pipeline.containerBuildPub(
-          //  dockerfile: config.container_repo.dockerfile,
-          //  host      : config.container_repo.host,
-          //  acct      : acct,
-          //  repo      : config.container_repo.repo,
-          //  tags      : image_tags_list,
-<<<<<<< HEAD
-          //  auth_id   : config.container_repo.jenkins_creds_id
-      //  )
-      // }
-
-    // }
-=======
         pipeline.containerBuildPub(
             dockerfile: config.container_repo.dockerfile,
             host      : config.container_repo.host,
             acct      : acct,
             repo      : config.container_repo.repo,
             tags      : image_tags_list,
-=======
->>>>>>> use a container!
-          //  auth_id   : config.container_repo.jenkins_creds_id
-      //  )
-      // }
-
-<<<<<<< HEAD
+        //  auth_id   : config.container_repo.jenkins_creds_id
+        )
+       }
     }
->>>>>>> saving the file might help
-=======
-    // }
->>>>>>> use a container!
 
     if (env.BRANCH_NAME =~ "PR-*" ) {
       stage ('deploy to k8s') {
