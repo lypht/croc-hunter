@@ -29,7 +29,7 @@ volumes:[
     def imageTag = "gcr.io/${project}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
 
     stage ('Build image') {
-      container('google') {
+      container('docker') {
         sh("docker build -t ${imageTag} .")
       }
     }
