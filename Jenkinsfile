@@ -44,7 +44,7 @@ volumes:[
 
       println "Runing kubectl/helm tests"
       container('kubectl') {
-      pipeline.kubectlTest()
+        pipeline.kubectlTest()
       }
       container('helm') {
         pipeline.helmConfig()
@@ -95,7 +95,7 @@ volumes:[
         // perform docker login to quay as the docker-pipeline-plugin doesn't work with the next auth json format
         withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: config.container_repo.jenkins_creds_id,
                         usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-          sh "docker login -e ${config.container_repo.dockeremail} -u ${env.USERNAME} -p ${env.PASSWORD} quay.io"
+          sh "docker login -u ${env.USERNAME} -p ${env.PASSWORD} quay.io"
         }
 
         // build and publish container
@@ -125,7 +125,7 @@ volumes:[
             cpu           : config.app.cpu,
             memory        : config.app.memory
           )
-          
+
           //  Run helm tests
           if (config.app.test) {
             pipeline.helmTest(
