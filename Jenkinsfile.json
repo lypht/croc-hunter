@@ -9,8 +9,7 @@
   },
   "container_repo": {
     "host": "gcr.io",
-    "master_acct": "farmotive-com",
-    "alt_acct": "farmotive-com",
+    "project": "farmotive-com",
     "repo": "croc-hunter",
     "dockerfile": "./"
   },

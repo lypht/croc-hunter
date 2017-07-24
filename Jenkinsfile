@@ -23,21 +23,14 @@ volumes:[
 
     checkout scm
 
-
-    def project = 'farmotive-com'
-    def appName = 'croc-hunter'
-    def imageTag = "gcr.io/${project}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
-
-    stage ('Build image') {
-      container('docker') {
-        sh("docker build -t ${imageTag} .")
-      }
-    }
+    def METADATA = 'http://metadata.google.internal./computeMetadata/v1'
+    def SVC_ACCT= '$METADATA/instance/service-accounts/default'
+    def ACCESS_TOKEN= '$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'"' -f 4)'
 
     // read in required jenkins workflow config values
-    // def inputFile = readFile('Jenkinsfile.json')
-    // def config = new groovy.json.JsonSlurperClassic().parseText(inputFile)
-    // println "pipeline config ==> ${config}"
+    def inputFile = readFile('Jenkinsfile.json')
+    def config = new groovy.json.JsonSlurperClassic().parseText(inputFile)
+     println "pipeline config ==> ${config}"
 
     // continue only if pipeline enabled
     if (!config.pipeline.enabled) {
@@ -101,28 +94,17 @@ volumes:[
       }
     }
 
-    stage ('publish container') {
-      container ('gcloud')
-        sh("gcloud docker -- push ${imageTag}")
-      }
-    }
-
-      // container('docker') {
-
-        // perform docker login to quay as the docker-pipeline-plugin doesn't work with the next auth json format
-        // withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: config.container_repo.jenkins_creds_id,
-        //                usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-        //  sh "docker login -u ${env.USERNAME} -p ${env.PASSWORD} quay.io"
-        // }
+       container('docker') {
+          sh "docker login -u '_token' -p $ACCESS_TOKEN https://gcr.io"
+         }
 
         // build and publish container
         pipeline.containerBuildPub(
             dockerfile: config.container_repo.dockerfile,
             host      : config.container_repo.host,
-            acct      : acct,
+            project   : config.contianer_repo.project,
             repo      : config.container_repo.repo,
             tags      : image_tags_list,
-        //  auth_id   : config.container_repo.jenkins_creds_id
         )
        }
     }
