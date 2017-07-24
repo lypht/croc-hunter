@@ -25,7 +25,7 @@ volumes:[
 
     def METADATA = 'http://metadata.google.internal./computeMetadata/v1'
     def SVC_ACCT= '$METADATA/instance/service-accounts/default'
-    def ACCESS_TOKEN= "$(curl -H "Metadata-Flavor: Google" $SVC_ACCT/token | cut -d'"' -f 4)"
+    def ACCESS_TOKEN= '${curl -H "Metadata-Flavor: Google" $SVC_ACCT/token | cut -d'"' -f 4}'
 
     // read in required jenkins workflow config values
     def inputFile = readFile('Jenkinsfile.json')
